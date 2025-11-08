@@ -1,0 +1,11 @@
+.contenedor::after {
+    background: #fff none repeat scroll 0 0;
+    content: " ";
+    height: 67px;
+    left: -15px;
+    overflow: hidden;
+    position: absolute;
+    top: 60px;
+    transform: skewX(-40deg);
+    width: 45%;
+}
