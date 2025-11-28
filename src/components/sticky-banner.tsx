@@ -5,13 +5,12 @@ export function StickyBannerDemo() {
     <div className="relative flex h-auto w-full flex-col overflow-y-auto">
       <StickyBanner className="bg-gradient-to-b from-red-600 to-red-700">
         <p className="mx-0 max-w-[90%] text-white drop-shadow-md">
-          Announcing $10M seed funding from project mayhem ventures.{" "}
-          <a href="#" className="transition duration-200 hover:underline">
-            Read announcement
+          Adquiere tus tickets y sube tu comprobante en el formulario para quedar registrado en el sorteo.{" "}
+          <a href="/buy-tickets" className="transition duration-200 underline font-semibold hover:underline-offset-4">
+            Ir a comprar tickets
           </a>
         </p>
       </StickyBanner>
-      {/* <DummyContent /> */}
     </div>
   );
 }

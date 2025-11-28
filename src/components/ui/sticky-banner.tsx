@@ -28,7 +28,7 @@ export const StickyBanner = ({
   return (
     <motion.div
       className={cn(
-        "sticky inset-x-0 top-0 z-40 flex min-h-14 w-full items-center justify-center bg-transparent px-4 py-1",
+        "sticky inset-x-0 top-0 z-40 flex h-14 w-full items-center justify-center bg-transparent px-4 py-1",
         className,
       )}
       initial={{
@@ -47,13 +47,14 @@ export const StickyBanner = ({
       {children}
 
       <motion.button
+        type="button"
         initial={{
           scale: 0,
         }}
         animate={{
           scale: 1,
         }}
-        className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer"
+        className="absolute top-1/4 right-4 cursor-pointer flex items-center justify-center p-1 rounded-full hover:bg-white/10 transition-colors"
         onClick={() => setOpen(!open)}
       >
         <CloseIcon className="h-5 w-5 text-white" />
@@ -82,6 +83,5 @@ const CloseIcon = (props: SVGProps<SVGSVGElement>) => {
     </svg>
   );
 };
-
 
 export default StickyBanner;
