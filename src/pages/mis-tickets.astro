@@ -74,7 +74,7 @@ import { StickyBannerDemo } from "@/components/sticky-banner";
           `;
 
         const response = await fetch(
-          `https://premios-backend-5dd4e4af7e8c.herokuapp.com/api/tickets/${dni}`,
+          `https://premios-back-b916cb780512.herokuapp.com/api/tickets/${dni}`,
         );
         if (!response.ok)
           throw new Error("No se encontraron tickets asociados a este DNI");

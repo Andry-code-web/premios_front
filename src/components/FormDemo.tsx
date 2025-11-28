@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { AnimatedHead } from "@/components/ui/AnimatedHead";
 import { cn } from "@/lib/utils";
+import Swal from "sweetalert2";
 
 import type { FocusState } from "@/components/ui/AnimatedHead";
 
@@ -18,8 +19,65 @@ const InputWithFocus = ({ id, onFocus, onBlur, ...props }: any) => {
   );
 };
 
-export const SignUpForm = ({ handleSubmit }: any) => {
+export const SignUpForm = () => {
   const [focusState, setFocusState] = useState<FocusState>("idle");
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({ type: null, message: "" });
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const res = await fetch("https://premios-back-b916cb780512.herokuapp.com/api/clientes", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    // Éxito
+    if (res.status === 201) {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: "Registro completado 🎉",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+
+    // DNI duplicado
+    if (res.status === 409) {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "warning",
+        title: "Este DNI ya está registrado ⚠️",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+
+    // Error genérico
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "error",
+      title: "Ocurrió un error inesperado ❌",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+    });
+  };
+
 
   const handleFocus = (fieldId: string) => {
     // Si el campo existe en FocusState → úsalo
@@ -68,12 +126,12 @@ export const SignUpForm = ({ handleSubmit }: any) => {
         <div className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
           <LabelInputContainer>
             <Label htmlFor="nombres">Nombres*</Label>
-            <InputWithFocus id="nombres" name="nombres" placeholder="Carlos" type="text" onFocus={handleFocus} onBlur={handleBlur} />
+            <InputWithFocus id="nombres" name="nombres" placeholder="Carlos" type="text" required onFocus={handleFocus} onBlur={handleBlur} />
           </LabelInputContainer>
 
           <LabelInputContainer>
             <Label htmlFor="apellidos">Apellidos*</Label>
-            <InputWithFocus id="apellidos" name="apellidos" placeholder="Perez" type="text" onFocus={handleFocus} onBlur={handleBlur} />
+            <InputWithFocus id="apellidos" name="apellidos" placeholder="Perez" type="text" required onFocus={handleFocus} onBlur={handleBlur} />
           </LabelInputContainer>
         </div>
 
@@ -81,29 +139,50 @@ export const SignUpForm = ({ handleSubmit }: any) => {
         <div className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
           <LabelInputContainer>
             <Label htmlFor="dni">DNI*</Label>
-            <InputWithFocus id="dni" name="dni" placeholder="45874345" type="number" onFocus={handleFocus} onBlur={handleBlur} />
+            <InputWithFocus id="dni" name="dni" placeholder="45874345" type="number" required onFocus={handleFocus} onBlur={handleBlur} />
           </LabelInputContainer>
 
           <LabelInputContainer>
             <Label htmlFor="celular">Celular*</Label>
-            <InputWithFocus id="celular" name="celular" placeholder="924836878" type="tel" onFocus={handleFocus} onBlur={handleBlur} />
+            <InputWithFocus id="celular" name="celular" placeholder="924836878" type="tel" required onFocus={handleFocus} onBlur={handleBlur} />
           </LabelInputContainer>
         </div>
 
         {/* Email */}
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Correo*</Label>
-          <InputWithFocus id="email" name="email" placeholder="correo@gmail.com" type="email" onFocus={handleFocus} onBlur={handleBlur} />
+          <InputWithFocus id="email" name="email" placeholder="correo@gmail.com" type="email" required onFocus={handleFocus} onBlur={handleBlur} />
         </LabelInputContainer>
 
         {/* Voucher */}
         <LabelInputContainer className="mb-4">
           <Label htmlFor="voucher">Subir Voucher*</Label>
-          <InputWithFocus id="voucher" name="voucher" type="file" onFocus={handleFocus} onBlur={handleBlur} />
+          <InputWithFocus id="voucher" name="voucher" type="file" required accept="image/*,.pdf" onFocus={handleFocus} onBlur={handleBlur} />
         </LabelInputContainer>
 
-        <button type="submit" className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 text-white">
-          Registrar →
+        {/* Status Message */}
+        {submitStatus.type && (
+          <div
+            className={cn(
+              "mb-4 rounded-md p-3 text-sm",
+              submitStatus.type === "success"
+                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
+                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200"
+            )}
+          >
+            {submitStatus.message}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={cn(
+            "group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-black to-neutral-600 text-white transition-opacity",
+            isLoading && "cursor-not-allowed opacity-50"
+          )}
+        >
+          {isLoading ? "Enviando..." : "Registrar →"}
           <BottomGradient />
         </button>
       </form>

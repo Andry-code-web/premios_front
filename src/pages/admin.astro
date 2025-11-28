@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { AdminDashboard } from "@/components/AdminDashboard";
+---
+
+<Layout title="Admin Dashboard - Sorteos CAMI">
+    <div
+        class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+    >
+        <AdminDashboard client:load />
+    </div>
+</Layout>

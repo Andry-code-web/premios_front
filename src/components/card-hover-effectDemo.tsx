@@ -6,7 +6,7 @@ export function CardHoverEffectDemo() {
 
   useEffect(() => {
     // Llamamos a tu API
-    fetch("http://localhost:3000/api/ganadores")
+    fetch("https://premios-back-b916cb780512.herokuapp.com/api/ganadores")
       .then((res) => res.json())
       .then((data) => {
         // Adaptamos los datos al formato que tu componente espera
