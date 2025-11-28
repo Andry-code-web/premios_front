@@ -1,127 +1,76 @@
 "use client";
+
+import React, { useState } from "react";
 import {
   Navbar,
   NavBody,
   NavItems,
   MobileNav,
+  MobileNavHeader,
+  MobileNavMenu,
+  MobileNavToggle,
   NavbarLogo,
   NavbarButton,
-  MobileNavHeader,
-  MobileNavToggle,
-  MobileNavMenu,
+  NavTitle,
 } from "@/components/ui/resizable-navbar";
-import { useState } from "react";
+import { ColourfulText } from "@/components/ui/colourful-text";
 
-import { LayoutGridDemo } from "@/components/layout-gridDemo";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import { ColourfulTextDemo } from "@/components/colourful-textDemo";
-import ColourfulText from "@/components/ui/colourful-text";
-
+const navItems = [
+  { name: "Inicio", link: "/" },
+  { name: "Premios", link: "/#premios" },
+  { name: "Ganadores", link: "/#ganadores" },
+  { name: "Mis Tickets", link: "/mis-tickets" },
+];
 
 export function NavbarDemo() {
-  const navItems = [
-    {
-      name: "Inicio",
-      link: "/",
-    },
-    {
-      name: "Ver premios",
-      link: "/#premios",
-    },
-    {
-      name: "Mis tickets",
-      link: "/mis-tickets",
-    },
-    {
-      name: "Ganadores",
-      link: "/#ganadores",
-    },
-  ];
-
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="relative w-full">
-      <Navbar>
-        {/* Desktop Navigation */}
-        <NavBody>
-          <h1 className="text-2xl md:text-xl lg:text-2xl font-bold text-center text-white relative z-2 font-sans">
+    <Navbar>
+      <NavBody>
+        <NavTitle className="text-2xl md:text-xl lg:text-2xl font-bold text-center relative z-2 font-sans">
+          <ColourfulText text="Premios Cleosaki" />
+        </NavTitle>
+        <NavItems items={navItems} />
+        <div className="ml-auto flex items-center gap-2">
+          <NavbarButton href="/buy-tickets" variant="gradient">
+            Comprar Tickets
+          </NavbarButton>
+        </div>
+      </NavBody>
+      <MobileNav>
+        <MobileNavHeader>
+          <NavTitle className="text-2xl md:text-xl lg:text-2xl font-bold text-center relative z-2 font-sans">
             <ColourfulText text="Premios Cleosaki" />
-          </h1>
-          <NavItems items={navItems} />
-          <div className="flex items-center gap-4">
-            <NavbarButton variant="gradient">Chat con Cami</NavbarButton>
-          </div>
-        </NavBody>
-
-        {/* Mobile Navigation */}
-        <MobileNav>
-          <MobileNavHeader>
-            <NavbarLogo />
-            <MobileNavToggle
-              isOpen={isMobileMenuOpen}
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            />
-          </MobileNavHeader>
-
-          <MobileNavMenu
+          </NavTitle>
+          <MobileNavToggle
             isOpen={isMobileMenuOpen}
-            onClose={() => setIsMobileMenuOpen(false)}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          />
+        </MobileNavHeader>
+        <MobileNavMenu
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+        >
+          {navItems.map((item, idx) => (
+            <a
+              key={`mobile-link-${idx}`}
+              href={item.link}
+              className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {item.name}
+            </a>
+          ))}
+          <NavbarButton
+            href="/buy-tickets"
+            variant="gradient"
+            className="w-full mt-4"
           >
-            {navItems.map((item, idx) => (
-              <a
-                key={`mobile-link-${idx}`}
-                href={item.link}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="relative text-neutral-600 dark:text-neutral-300"
-              >
-                <span className="block">{item.name}</span>
-              </a>
-            ))}
-            <div className="flex w-full flex-col gap-4">
-              <NavbarButton
-                onClick={() => setIsMobileMenuOpen(false)}
-                variant="primary"
-                className="w-full"
-              >
-                Login
-              </NavbarButton>
-              <NavbarButton
-                onClick={() => setIsMobileMenuOpen(false)}
-                variant="primary"
-                className="w-full"
-              >
-                Book a call
-              </NavbarButton>
-            </div>
-          </MobileNavMenu>
-        </MobileNav>
-      </Navbar>
-      <DummyContent />
-
-      {/* Navbar */}
-    </div>
+            Comprar Tickets
+          </NavbarButton>
+        </MobileNavMenu>
+      </MobileNav>
+    </Navbar>
   );
 }
-
-const words = `Los mejores sorteos y premios estan a tu alcance.`;
-const words2 = `Inscríbete para ser ganador de grandes premios semana a semana, con tan solo S/ 10 al mes. Recibe la Revista REMATES PERU todos los Martes`;
-
-const DummyContent = () => {
-  return (
-    <div className="w-[90%] mx-auto p-8 pt-5 flex justify-center items-center">
-      <div className="w-1/4">
-
-        <h1 className="text-center">
-          <TextGenerateEffect words={words} variant="title" />
-        </h1>
-
-        <TextGenerateEffect words={words2} variant="subtitle" />
-
-      </div>
-      <div className="w-3/5">
-        <LayoutGridDemo />
-      </div>
-    </div>
-  );
-};

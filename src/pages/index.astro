@@ -4,64 +4,116 @@ import { CarouselDemo } from "@/components/CarouselDemo";
 import { NavbarDemo } from "@/components/resizable-navbar";
 import { StickyBannerDemo } from "@/components/sticky-banner";
 import { WavyBackground } from "@/components/ui/wavy-background";
-import { Highlight } from "@/components/ui/hero-highlight";
 import { CardHoverEffectDemo } from "@/components/card-hover-effectDemo";
-import { SignupFormDemo } from "@/components/FormDemo";
-import { motion } from "motion/react";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { LayoutGridDemo } from "@/components/layout-gridDemo";
+
+const words = `Los mejores sorteos y premios estan a tu alcance.`;
+const words2 = `Inscríbete para ser ganador de grandes premios semana a semana, con tan solo S/ 10 al mes. Recibe la Revista REMATES PERU todos los Martes`;
 ---
 
 <StickyBannerDemo client:load />
 <Layout title="Sorteos CAMI">
   <NavbarDemo client:load />
   <main class="w-full h-full">
-    <section class="w-full h-[50vh]">
+    <div class="w-[90%] mx-auto p-8 pt-5 flex justify-center items-center">
+      <div class="w-1/4">
+        <TextGenerateEffect client:load words={words} variant="title" />
+
+        <TextGenerateEffect client:load words={words2} variant="subtitle" />
+      </div>
+      <div class="w-3/5">
+        <LayoutGridDemo />
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4" id="premios">
+      <p
+        class="text-xl sm:text-2xl md:text-4xl lg:text-5xl text-white font-bold inter-var text-center uppercase mt-12 md:mt-24"
+      >
+        Premiazos que puedes ganar
+      </p>
+      <CarouselDemo client:load />
+    </div>
+
+    <section class="w-full min-h-[30vh] py-8 md:py-12 lg:h-[50vh] lg:py-0">
       <WavyBackground client:load>
         <p
-          class="text-2xl md:text-4xl lg:text-7xl text-white font-bold inter-var text-center mb-10"
+          class="text-xl sm:text-2xl md:text-4xl lg:text-7xl text-white font-bold inter-var text-center mb-6 md:mb-10 px-4"
         >
           El sorteo comienza en:
         </p>
-        <div class="flex items-center justify-center gap-4 mb-12">
+        <div
+          class="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 mb-8 md:mb-12 px-4 flex-wrap"
+        >
           <!-- Días -->
           <div
-            class="bg-gradient-to-br from-red-400 to-red-600 rounded-3xl p-6 w-32 h-32 flex flex-col items-center justify-center shadow-xl"
+            class="bg-gradient-to-br from-red-400 to-red-600 rounded-2xl md:rounded-3xl p-3 md:p-4 lg:p-6 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 flex flex-col items-center justify-center shadow-xl"
           >
-            <div id="days" class="text-5xl font-bold text-white mb-1">00</div>
-            <div class="text-white text-sm font-medium opacity-90">Días</div>
+            <div
+              id="days"
+              class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-1"
+            >
+              00
+            </div>
+            <div class="text-white text-xs sm:text-sm font-medium opacity-90">
+              Días
+            </div>
           </div>
 
-          <span class="text-4xl font-bold text-white">:</span>
+          <span class="text-2xl sm:text-3xl md:text-4xl font-bold text-white"
+            >:</span
+          >
 
           <!-- Horas -->
           <div
-            class="bg-gradient-to-br from-red-400 to-red-600 rounded-3xl p-6 w-32 h-32 flex flex-col items-center justify-center shadow-xl"
+            class="bg-gradient-to-br from-red-400 to-red-600 rounded-2xl md:rounded-3xl p-3 md:p-4 lg:p-6 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 flex flex-col items-center justify-center shadow-xl"
           >
-            <div id="hours" class="text-5xl font-bold text-white mb-1">00</div>
-            <div class="text-white text-sm font-medium opacity-90">Horas</div>
+            <div
+              id="hours"
+              class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-1"
+            >
+              00
+            </div>
+            <div class="text-white text-xs sm:text-sm font-medium opacity-90">
+              Horas
+            </div>
           </div>
 
-          <span class="text-4xl font-bold text-white">:</span>
+          <span class="text-2xl sm:text-3xl md:text-4xl font-bold text-white"
+            >:</span
+          >
 
           <!-- Minutos -->
           <div
-            class="bg-gradient-to-br from-red-400 to-red-600 rounded-3xl p-6 w-32 h-32 flex flex-col items-center justify-center shadow-xl"
+            class="bg-gradient-to-br from-red-400 to-red-600 rounded-2xl md:rounded-3xl p-3 md:p-4 lg:p-6 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 flex flex-col items-center justify-center shadow-xl"
           >
-            <div id="minutes" class="text-5xl font-bold text-white mb-1">
+            <div
+              id="minutes"
+              class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-1"
+            >
               00
             </div>
-            <div class="text-white text-sm font-medium opacity-90">Minutos</div>
+            <div class="text-white text-xs sm:text-sm font-medium opacity-90">
+              Minutos
+            </div>
           </div>
 
-          <span class="text-4xl font-bold text-white">:</span>
+          <span class="text-2xl sm:text-3xl md:text-4xl font-bold text-white"
+            >:</span
+          >
 
           <!-- Segundos -->
           <div
-            class="bg-gradient-to-br from-red-400 to-red-600 rounded-3xl p-6 w-32 h-32 flex flex-col items-center justify-center shadow-xl"
+            class="bg-gradient-to-br from-red-400 to-red-600 rounded-2xl md:rounded-3xl p-3 md:p-4 lg:p-6 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 flex flex-col items-center justify-center shadow-xl"
           >
-            <div id="seconds" class="text-5xl font-bold text-white mb-1">
+            <div
+              id="seconds"
+              class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-1"
+            >
               00
             </div>
-            <div class="text-white text-sm font-medium opacity-90">
+            <div class="text-white text-xs sm:text-sm font-medium opacity-90">
               Segundos
             </div>
           </div>
@@ -69,99 +121,35 @@ import { motion } from "motion/react";
       </WavyBackground>
     </section>
 
-    <div class="max-w-7xl mx-auto" id="premios">
-      <p
-        class="text-2xl md:text-4xl lg:text-5xl text-red-600 font-bold inter-var text-center uppercase mt-24"
-      >
-        Premiazos que puedes ganar
-      </p>
-      <CarouselDemo client:load />
-    </div>
-
-    <section class="w-full h-[70vh] my-auto bg-black px-10 py-10">
-      <div class="w-[70%] h-full mx-auto my-auto flex">
-        <div class="w-1/2 h-full mt-10">
-          <SignupFormDemo client:load  />
-        </div>
-        <div class="w-1/2 h-full flex flex-col">
-          <h2
-            class="text-2xl md:text-4xl lg:text-6xl text-white font-bold inter-var text-center mb-10"
-          >
-            ¡Tu oportunidad de ganar comienza aquí!
-          </h2>
-          <p class="text-white font-sans text-lg text-justify">
-            Al realizar tus pagos con Yape o Plin por un monto mínimo de S/ 40,
-            participas automáticamente en nuestros sorteos exclusivos, donde
-            podrás llevarte una gran variedad de premios diseñados para
-            sorprenderte. Cuantos más pagos realices, ¡más oportunidades tendrás
-            de ganar! No esperes más, paga fácil, rápido y seguro con Yape o
-            Plin… y deja que la suerte haga el resto.
-          </p>
-
-          <div class="w-full h-full flex gap-10 justify-center mt-10">
-            <div class="text-center">
-              <Highlight
-                client:load
-                from="from-purple-500"
-                to="to-pink-500"
-                className="px-5 font-sans font-bold text-3xl"
-              >
-                Yape
-              </Highlight>
-              <img
-                src="/qr.png"
-                class="w-[13rem] h-[13rem] rounded-lg mt-5"
-                alt="QR de Yape"
-              />
-            </div>
-
-            <div class="text-center">
-              <Highlight
-                client:load
-                from="from-blue-500"
-                to="to-cyan-500"
-                className="px-5 font-sans font-bold text-3xl"
-              >
-                Plin
-              </Highlight>
-              <img
-                src="/qr.png"
-                class="w-[13rem] h-[13rem] rounded-lg mt-5"
-                alt="QR de Plin"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- <HeroParallaxDemo client:load/> -->
 
     <section id="ganadores">
-      <CardHoverEffectDemo client:load/>
+      <CardHoverEffectDemo client:load />
     </section>
 
-    <footer class="bg-black text-white p-8 md:p-12 border-t border-gray-800">
-      <div class="max-w-7xl mx-auto">
+    <footer
+      class="bg-black text-white p-6 sm:p-8 md:p-12 border-t border-gray-800"
+    >
+      <div class="max-w-7xl mx-auto px-4">
         <div
-          class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 border-b border-gray-700 pb-8 mb-8"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 sm:gap-8 border-b border-gray-700 pb-6 sm:pb-8 mb-6 sm:mb-8"
         >
-          <div class="col-span-2 md:col-span-1">
+          <div class="col-span-1 sm:col-span-2 md:col-span-1">
             <a
               href="/"
-              class="text-2xl font-serif tracking-widest text-red-500 font-bold"
+              class="text-xl sm:text-2xl font-serif tracking-widest text-red-500 font-bold"
             >
               Profe Cleosaki
             </a>
           </div>
 
-          <div class="col-span-1 md:col-span-1">
+          <div class="col-span-1">
             <h3
-              class="text-sm font-semibold mb-3 text-red-500 uppercase tracking-wider"
+              class="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-red-500 uppercase tracking-wider"
             >
               Contacto
             </h3>
-            <ul class="space-y-1 text-sm text-gray-400">
+            <ul class="space-y-1 text-xs sm:text-sm text-gray-400">
               <li>
                 <a
                   href="tel:+51999999999"
@@ -171,20 +159,20 @@ import { motion } from "motion/react";
               <li>
                 <a
                   href="mailto:soporte@profecleosaki.com"
-                  class="hover:text-white transition-colors"
+                  class="hover:text-white transition-colors break-words"
                   >soporte@profecleosaki.com</a
                 >
               </li>
             </ul>
           </div>
 
-          <div class="col-span-1 md:col-span-1">
+          <div class="col-span-1">
             <h3
-              class="text-sm font-semibold mb-3 text-red-500 uppercase tracking-wider"
+              class="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-red-500 uppercase tracking-wider"
             >
               Menú
             </h3>
-            <ul class="space-y-1 text-sm text-gray-400">
+            <ul class="space-y-1 text-xs sm:text-sm text-gray-400">
               <li>
                 <a href="/inicio" class="hover:text-white transition-colors"
                   >Inicio</a
@@ -200,55 +188,69 @@ import { motion } from "motion/react";
           </div>
 
           <div
-            class="col-span-2 md:col-span-1 lg:col-span-2 flex flex-col items-start md:items-end justify-between"
+            class="col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-2 flex flex-col items-start sm:items-center md:items-end justify-between gap-4"
           >
-            <div class="text-center md:text-right mb-4 md:mb-0">
-              <p class="text-lg font-semibold mb-3">
+            <div
+              class="text-center sm:text-center md:text-right w-full sm:w-auto"
+            >
+              <p class="text-base sm:text-lg font-semibold mb-3">
                 Suscríbete y gana grandes premios
               </p>
               <a
                 href="/suscripcion"
-                class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg"
+                class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 sm:px-6 rounded-lg transition-colors shadow-lg text-sm sm:text-base"
               >
                 Suscribirme
               </a>
             </div>
 
-            <div class="flex space-x-4 mt-4 md:mt-0">
+            <div
+              class="flex space-x-4 w-full sm:w-auto justify-center md:justify-end"
+            >
               <a
                 href="#"
                 aria-label="Síguenos en Facebook"
                 class="text-gray-400 hover:text-red-500 transition-colors"
               >
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"
-                ></svg>
+                <svg
+                  class="w-5 h-5 sm:w-6 sm:h-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"></svg>
               </a>
               <a
                 href="#"
                 aria-label="Síguenos en TikTok"
                 class="text-gray-400 hover:text-red-500 transition-colors"
               >
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"
-                ></svg>
+                <svg
+                  class="w-5 h-5 sm:w-6 sm:h-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"></svg>
               </a>
               <a
                 href="#"
                 aria-label="Síguenos en YouTube"
                 class="text-gray-400 hover:text-red-500 transition-colors"
               >
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"
-                ></svg>
+                <svg
+                  class="w-5 h-5 sm:w-6 sm:h-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"></svg>
               </a>
             </div>
           </div>
         </div>
 
         <div
-          class="flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs md:text-sm"
+          class="flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs sm:text-sm gap-4"
         >
-          <p>&copy; Profe Cleosaki 2024. Todos los derechos reservados.</p>
+          <p class="text-center md:text-left">
+            &copy; Profe Cleosaki 2024. Todos los derechos reservados.
+          </p>
 
-          <div class="mt-4 md:mt-0 flex space-x-2 opacity-75">
+          <div
+            class="flex flex-wrap justify-center md:justify-end gap-2 opacity-75"
+          >
             <span>VISA</span>
             <span>MC</span>
             <span>AMEX</span>

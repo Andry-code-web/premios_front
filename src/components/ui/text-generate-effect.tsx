@@ -32,11 +32,11 @@ export const TextGenerateEffect = ({
   // 🎨 Define tus variantes aquí
   const variantStyles: Record<VariantType, string> = {
     default:
-      "text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-black dark:text-white",
+      "text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white dark:text-black",
     title:
-      "text-3xl sm:text-2xl md:text-5xl lg:text-3xl font-extrabold text-black dark:text-white",
+      "text-3xl sm:text-2xl md:text-5xl lg:text-3xl font-extrabold text-white dark:text-black",
     subtitle:
-      "text-sm sm:text-base md:text-lg lg:text-md text-zinc-600 dark:text-zinc-400 font-normal",
+      "text-sm sm:text-base md:text-lg lg:text-md text-white dark:text-black font-normal",
     highlight:
       "text-lg sm:text-xl md:text-2xl lg:text-3xl text-yellow-500 font-semibold italic",
   };

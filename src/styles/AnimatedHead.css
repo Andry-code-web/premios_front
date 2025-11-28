@@ -1,0 +1,22 @@
+/*
+  Define la animación de parpadeo
+  La idea es reducir la altura (scaleY) de las pupilas
+*/
+@keyframes blink {
+    0%, 20%, 100% {
+      transform: scaleY(1); /* Ojos completamente abiertos */
+      opacity: 1;
+    }
+    10%, 11% {
+      transform: scaleY(0.1); /* Ojos casi cerrados (parpadeo) */
+      opacity: 0.8;
+    }
+  }
+  
+  /*
+    Clase que aplica la animación a los ojos
+  */
+  .monkey-blinking-eyes {
+    transform-origin: center center; /* Asegura que se comprima desde el centro */
+    animation: blink 2s infinite; /* Repetir el ciclo cada 6 segundos */
+  }
