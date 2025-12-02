@@ -1,62 +1,97 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 
-interface Participant {
+interface Cliente {
     id: number;
     nombres: string;
     apellidos: string;
     dni: string;
     celular: string;
     email: string;
-    fecha: string;
+    fecha_registro: string;
     voucher: string;
 }
 
-export const AdminDashboard = () => {
-    const [activeTab, setActiveTab] = useState<"overview" | "participants" | "winners">("overview");
+interface Sorteo {
+    id: number;
+    nombre: string;
+    descripcion: string;
+    metodo_pago: string;
+    fecha_inicio: string;
+    fecha_fin: string;
+    estado: string;
+}
 
-    // Datos de ejemplo - en producción vendrían de una API
-    const stats = {
-        totalParticipants: 156,
-        totalTickets: 234,
-        activeDraws: 3,
-        totalRevenue: 2340,
+interface Ticket {
+    id: number;
+    codigo_ticket: string;
+    cliente_id: number;
+    sorteo_id: number;
+    monto: number;
+    metodo_pago: string;
+    fecha_compra: string;
+    nombres: string;
+    apellidos: string;
+    dni: string;
+    sorteo_nombre: string;
+}
+
+//const API_URL = "https://premios-back-b916cb780512.herokuapp.com/api";
+const API_URL = "http://localhost:3000/api";
+export const AdminDashboard = () => {
+    const [activeTab, setActiveTab] = useState<"overview" | "participants" | "assign" | "tickets">("overview");
+    const [clientes, setClientes] = useState<Cliente[]>([]);
+    const [sorteos, setSorteos] = useState<Sorteo[]>([]);
+    const [tickets, setTickets] = useState<Ticket[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
+    const [showVoucher, setShowVoucher] = useState(false);
+
+    // Cargar datos iniciales
+    useEffect(() => {
+        loadClientes();
+        loadSorteos();
+        loadTickets();
+    }, []);
+
+    const loadClientes = async () => {
+        try {
+            const response = await fetch(`${API_URL}/clientes`);
+            const data = await response.json();
+            setClientes(data);
+        } catch (error) {
+            console.error("Error al cargar clientes:", error);
+        }
     };
 
-    const participants: Participant[] = [
-        {
-            id: 1,
-            nombres: "Carlos",
-            apellidos: "Pérez",
-            dni: "45874345",
-            celular: "924836878",
-            email: "carlos@gmail.com",
-            fecha: "2025-11-28",
-            voucher: "voucher001.jpg",
-        },
-        {
-            id: 2,
-            nombres: "María",
-            apellidos: "González",
-            dni: "45874346",
-            celular: "924836879",
-            email: "maria@gmail.com",
-            fecha: "2025-11-27",
-            voucher: "voucher002.jpg",
-        },
-        {
-            id: 3,
-            nombres: "José",
-            apellidos: "Rodríguez",
-            dni: "45874347",
-            celular: "924836880",
-            email: "jose@gmail.com",
-            fecha: "2025-11-26",
-            voucher: "voucher003.jpg",
-        },
-    ];
+    const loadSorteos = async () => {
+        try {
+            const response = await fetch(`${API_URL}/sorteos`);
+            const data = await response.json();
+            setSorteos(data);
+        } catch (error) {
+            console.error("Error al cargar sorteos:", error);
+        }
+    };
+
+    const loadTickets = async () => {
+        try {
+            const response = await fetch(`${API_URL}/tickets`);
+            const data = await response.json();
+            setTickets(data);
+        } catch (error) {
+            console.error("Error al cargar tickets:", error);
+        }
+    };
+
+    const stats = {
+        totalParticipants: clientes.length,
+        totalTickets: tickets.length,
+        activeDraws: sorteos.filter(s => s.estado === 'activo').length,
+        totalRevenue: tickets.reduce((sum, t) => sum + parseFloat(t.monto.toString()), 0),
+    };
 
     return (
         <div className="min-h-screen p-4 md:p-8">
@@ -65,167 +100,491 @@ export const AdminDashboard = () => {
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
                     Dashboard Administrativo
                 </h1>
-                <p className="text-gray-400">Gestiona sorteos, participantes y ganadores</p>
+                <p className="text-gray-400">Gestiona sorteos, participantes y tickets</p>
             </div>
 
             {/* Tabs */}
-            <div className="mb-8 flex gap-4 border-b border-gray-700">
+            <div className="mb-8 flex gap-4 border-b border-gray-700 overflow-x-auto">
                 <TabButton
                     active={activeTab === "overview"}
                     onClick={() => setActiveTab("overview")}
                 >
-                    Resumen
+                    📊 Resumen
                 </TabButton>
                 <TabButton
                     active={activeTab === "participants"}
                     onClick={() => setActiveTab("participants")}
                 >
-                    Participantes
+                    👥 Participantes
                 </TabButton>
                 <TabButton
-                    active={activeTab === "winners"}
-                    onClick={() => setActiveTab("winners")}
+                    active={activeTab === "assign"}
+                    onClick={() => setActiveTab("assign")}
                 >
-                    Ganadores
+                    🎫 Asignar Tickets
+                </TabButton>
+                <TabButton
+                    active={activeTab === "tickets"}
+                    onClick={() => setActiveTab("tickets")}
+                >
+                    📋 Tickets Asignados
                 </TabButton>
             </div>
 
             {/* Content */}
             <div className="space-y-6">
                 {activeTab === "overview" && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="space-y-6"
-                    >
-                        {/* Stats Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <StatCard
-                                title="Total Participantes"
-                                value={stats.totalParticipants}
-                                icon="👥"
-                                color="from-blue-500 to-blue-600"
-                            />
-                            <StatCard
-                                title="Tickets Vendidos"
-                                value={stats.totalTickets}
-                                icon="🎫"
-                                color="from-purple-500 to-purple-600"
-                            />
-                            <StatCard
-                                title="Sorteos Activos"
-                                value={stats.activeDraws}
-                                icon="🎰"
-                                color="from-green-500 to-green-600"
-                            />
-                            <StatCard
-                                title="Ingresos (S/)"
-                                value={stats.totalRevenue}
-                                icon="💰"
-                                color="from-red-500 to-red-600"
-                            />
-                        </div>
-
-                        {/* Recent Activity */}
-                        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700">
-                            <h2 className="text-xl font-bold text-white mb-4">Actividad Reciente</h2>
-                            <div className="space-y-3">
-                                {participants.slice(0, 3).map((p) => (
-                                    <div
-                                        key={p.id}
-                                        className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg"
-                                    >
-                                        <div>
-                                            <p className="text-white font-medium">
-                                                {p.nombres} {p.apellidos}
-                                            </p>
-                                            <p className="text-sm text-gray-400">{p.email}</p>
-                                        </div>
-                                        <span className="text-xs text-gray-500">{p.fecha}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </motion.div>
+                    <OverviewTab stats={stats} clientes={clientes} />
                 )}
 
                 {activeTab === "participants" && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700"
-                    >
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-white">Lista de Participantes</h2>
-                            <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
-                                Exportar CSV
-                            </button>
-                        </div>
-
-                        {/* Table */}
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b border-gray-700">
-                                        <th className="text-left py-3 px-4 text-gray-400 font-medium">ID</th>
-                                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Nombre</th>
-                                        <th className="text-left py-3 px-4 text-gray-400 font-medium">DNI</th>
-                                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Celular</th>
-                                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Email</th>
-                                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Fecha</th>
-                                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {participants.map((p) => (
-                                        <tr key={p.id} className="border-b border-gray-700/50 hover:bg-gray-700/20">
-                                            <td className="py-3 px-4 text-white">{p.id}</td>
-                                            <td className="py-3 px-4 text-white">
-                                                {p.nombres} {p.apellidos}
-                                            </td>
-                                            <td className="py-3 px-4 text-gray-300">{p.dni}</td>
-                                            <td className="py-3 px-4 text-gray-300">{p.celular}</td>
-                                            <td className="py-3 px-4 text-gray-300">{p.email}</td>
-                                            <td className="py-3 px-4 text-gray-400 text-sm">{p.fecha}</td>
-                                            <td className="py-3 px-4">
-                                                <button className="text-blue-400 hover:text-blue-300 mr-3">
-                                                    Ver
-                                                </button>
-                                                <button className="text-red-400 hover:text-red-300">
-                                                    Eliminar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </motion.div>
+                    <ParticipantsTab
+                        clientes={clientes}
+                        onViewVoucher={(cliente) => {
+                            setSelectedCliente(cliente);
+                            setShowVoucher(true);
+                        }}
+                    />
                 )}
 
-                {activeTab === "winners" && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700"
-                    >
-                        <h2 className="text-xl font-bold text-white mb-4">Seleccionar Ganador</h2>
-                        <div className="text-center py-12">
-                            <div className="text-6xl mb-4">🎉</div>
-                            <p className="text-gray-400 mb-6">
-                                Haz clic en el botón para seleccionar un ganador aleatorio
-                            </p>
-                            <button className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-bold text-lg transition-all transform hover:scale-105">
-                                Sortear Ganador
-                            </button>
-                        </div>
-                    </motion.div>
+                {activeTab === "assign" && (
+                    <AssignTicketsTab
+                        clientes={clientes}
+                        sorteos={sorteos}
+                        onTicketAssigned={() => {
+                            loadTickets();
+                            setActiveTab("tickets");
+                        }}
+                    />
+                )}
+
+                {activeTab === "tickets" && (
+                    <TicketsTab tickets={tickets} />
                 )}
             </div>
+
+            {/* Modal para ver voucher */}
+            <AnimatePresence>
+                {showVoucher && selectedCliente && (
+                    <VoucherModal
+                        cliente={selectedCliente}
+                        onClose={() => {
+                            setShowVoucher(false);
+                            setSelectedCliente(null);
+                        }}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
+// Tab Overview
+const OverviewTab = ({ stats, clientes }: { stats: any; clientes: Cliente[] }) => (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+    >
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+                title="Total Participantes"
+                value={stats.totalParticipants}
+                icon="👥"
+                color="from-blue-500 to-blue-600"
+            />
+            <StatCard
+                title="Tickets Asignados"
+                value={stats.totalTickets}
+                icon="🎫"
+                color="from-purple-500 to-purple-600"
+            />
+            <StatCard
+                title="Sorteos Activos"
+                value={stats.activeDraws}
+                icon="🎰"
+                color="from-green-500 to-green-600"
+            />
+            <StatCard
+                title="Ingresos (S/)"
+                value={stats.totalRevenue.toFixed(2)}
+                icon="💰"
+                color="from-red-500 to-red-600"
+            />
+        </div>
+
+        {/* Recent Activity */}
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700">
+            <h2 className="text-xl font-bold text-white mb-4">Registros Recientes</h2>
+            <div className="space-y-3">
+                {clientes.slice(0, 5).map((c) => (
+                    <div
+                        key={c.id}
+                        className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg"
+                    >
+                        <div>
+                            <p className="text-white font-medium">
+                                {c.nombres} {c.apellidos}
+                            </p>
+                            <p className="text-sm text-gray-400">{c.email}</p>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                            {new Date(c.fecha_registro).toLocaleDateString()}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </motion.div>
+);
+
+// Tab Participantes
+const ParticipantsTab = ({
+    clientes,
+    onViewVoucher
+}: {
+    clientes: Cliente[];
+    onViewVoucher: (cliente: Cliente) => void;
+}) => (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700"
+    >
+        <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-white">Lista de Participantes</h2>
+            <span className="text-gray-400">{clientes.length} registrados</span>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+            <table className="w-full">
+                <thead>
+                    <tr className="border-b border-gray-700">
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">ID</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Nombre</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">DNI</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Celular</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Email</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Fecha</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {clientes.map((c) => (
+                        <tr key={c.id} className="border-b border-gray-700/50 hover:bg-gray-700/20">
+                            <td className="py-3 px-4 text-white">{c.id}</td>
+                            <td className="py-3 px-4 text-white">
+                                {c.nombres} {c.apellidos}
+                            </td>
+                            <td className="py-3 px-4 text-gray-300">{c.dni}</td>
+                            <td className="py-3 px-4 text-gray-300">{c.celular}</td>
+                            <td className="py-3 px-4 text-gray-300">{c.email}</td>
+                            <td className="py-3 px-4 text-gray-400 text-sm">
+                                {new Date(c.fecha_registro).toLocaleDateString()}
+                            </td>
+                            <td className="py-3 px-4">
+                                <button
+                                    onClick={() => onViewVoucher(c)}
+                                    className="text-blue-400 hover:text-blue-300 mr-3"
+                                >
+                                    Ver Voucher
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </motion.div>
+);
+
+// Tab Asignar Tickets
+const AssignTicketsTab = ({
+    clientes,
+    sorteos,
+    onTicketAssigned
+}: {
+    clientes: Cliente[];
+    sorteos: Sorteo[];
+    onTicketAssigned: () => void;
+}) => {
+    const [selectedClienteId, setSelectedClienteId] = useState("");
+    const [selectedSorteoId, setSelectedSorteoId] = useState("");
+    const [monto, setMonto] = useState("");
+    const [metodoPago, setMetodoPago] = useState<"yape" | "plin" | "otros">("yape");
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [codigoTicket, setCodigoTicket] = useState("");
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setMessage("");
+        setCodigoTicket("");
+
+        try {
+            const response = await fetch(`${API_URL}/tickets`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    cliente_id: parseInt(selectedClienteId),
+                    sorteo_id: parseInt(selectedSorteoId),
+                    monto: parseFloat(monto),
+                    metodo_pago: metodoPago,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setCodigoTicket(data.codigo_ticket);
+                setMessage(`✅ ${data.message}`);
+                // Reset form
+                setSelectedClienteId("");
+                setSelectedSorteoId("");
+                setMonto("");
+                setMetodoPago("yape");
+                // Notify parent
+                setTimeout(() => {
+                    onTicketAssigned();
+                }, 2000);
+            } else {
+                setMessage(`❌ ${data.message}`);
+            }
+        } catch (error) {
+            setMessage("❌ Error al asignar ticket");
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700 max-w-2xl mx-auto"
+        >
+            <h2 className="text-xl font-bold text-white mb-6">Asignar Ticket a Cliente</h2>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Seleccionar Cliente */}
+                <div>
+                    <label className="block text-gray-300 mb-2">Cliente</label>
+                    <select
+                        value={selectedClienteId}
+                        onChange={(e) => setSelectedClienteId(e.target.value)}
+                        required
+                        className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-red-500 focus:outline-none"
+                    >
+                        <option value="">Seleccionar cliente...</option>
+                        {clientes.map((c) => (
+                            <option key={c.id} value={c.id}>
+                                {c.nombres} {c.apellidos} - DNI: {c.dni}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Seleccionar Sorteo */}
+                <div>
+                    <label className="block text-gray-300 mb-2">Sorteo</label>
+                    <select
+                        value={selectedSorteoId}
+                        onChange={(e) => setSelectedSorteoId(e.target.value)}
+                        required
+                        className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-red-500 focus:outline-none"
+                    >
+                        <option value="">Seleccionar sorteo...</option>
+                        {sorteos.filter(s => s.estado === 'activo').map((s) => (
+                            <option key={s.id} value={s.id}>
+                                {s.nombre} - {s.estado}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Monto */}
+                <div>
+                    <label className="block text-gray-300 mb-2">Monto (S/)</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        value={monto}
+                        onChange={(e) => setMonto(e.target.value)}
+                        required
+                        placeholder="10.00"
+                        className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-red-500 focus:outline-none"
+                    />
+                </div>
+
+                {/* Método de Pago */}
+                <div>
+                    <label className="block text-gray-300 mb-2">Método de Pago</label>
+                    <div className="flex gap-4">
+                        {["yape", "plin", "otros"].map((metodo) => (
+                            <label key={metodo} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="metodo_pago"
+                                    value={metodo}
+                                    checked={metodoPago === metodo}
+                                    onChange={(e) => setMetodoPago(e.target.value as any)}
+                                    className="text-red-600"
+                                />
+                                <span className="text-white capitalize">{metodo}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Código de Ticket Generado */}
+                {codigoTicket && (
+                    <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                        <label className="block text-green-300 mb-2 font-semibold">✅ Código de Ticket Generado</label>
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="text"
+                                value={codigoTicket}
+                                readOnly
+                                className="flex-1 px-4 py-3 bg-gray-900 text-green-400 font-mono text-lg rounded-lg border border-green-500/50 focus:outline-none"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(codigoTicket);
+                                    alert("Código copiado al portapapeles");
+                                }}
+                                className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                            >
+                                📋 Copiar
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Message */}
+                {message && (
+                    <div className={cn(
+                        "p-4 rounded-lg",
+                        message.includes("✅") ? "bg-green-500/20 text-green-300" : "bg-red-500/20 text-red-300"
+                    )}>
+                        {message}
+                    </div>
+                )}
+
+                {/* Submit Button */}
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-bold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {loading ? "Asignando..." : "Asignar Ticket"}
+                </button>
+            </form>
+        </motion.div>
+    );
+};
+
+// Tab Tickets
+const TicketsTab = ({ tickets }: { tickets: Ticket[] }) => (
+    <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700"
+    >
+        <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-white">Tickets Asignados</h2>
+            <span className="text-gray-400">{tickets.length} tickets</span>
+        </div>
+
+        <div className="overflow-x-auto">
+            <table className="w-full">
+                <thead>
+                    <tr className="border-b border-gray-700">
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Código</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Cliente</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">DNI</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Sorteo</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Monto</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Método</th>
+                        <th className="text-left py-3 px-4 text-gray-400 font-medium">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tickets.map((t) => (
+                        <tr key={t.id} className="border-b border-gray-700/50 hover:bg-gray-700/20">
+                            <td className="py-3 px-4 text-white font-mono text-sm">{t.codigo_ticket}</td>
+                            <td className="py-3 px-4 text-white">
+                                {t.nombres} {t.apellidos}
+                            </td>
+                            <td className="py-3 px-4 text-gray-300">{t.dni}</td>
+                            <td className="py-3 px-4 text-gray-300">{t.sorteo_nombre}</td>
+                            <td className="py-3 px-4 text-green-400">S/ {parseFloat(t.monto.toString()).toFixed(2)}</td>
+                            <td className="py-3 px-4 text-gray-300 capitalize">{t.metodo_pago}</td>
+                            <td className="py-3 px-4 text-gray-400 text-sm">
+                                {new Date(t.fecha_compra).toLocaleString()}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </motion.div>
+);
+
+// Modal Voucher
+const VoucherModal = ({ cliente, onClose }: { cliente: Cliente; onClose: () => void }) => (
+    <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+        onClick={onClose}
+    >
+        <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full"
+            onClick={(e) => e.stopPropagation()}
+        >
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white">
+                    Voucher de {cliente.nombres} {cliente.apellidos}
+                </h3>
+                <button
+                    onClick={onClose}
+                    className="text-gray-400 hover:text-white text-2xl"
+                >
+                    ×
+                </button>
+            </div>
+            <div className="bg-gray-700 rounded-lg p-4">
+                {cliente.voucher ? (
+                    <img
+                        src={`data:image/jpeg;base64,${cliente.voucher}`}
+                        alt="Voucher"
+                        className="w-full h-auto rounded"
+                    />
+                ) : (
+                    <p className="text-gray-400 text-center py-8">No hay voucher disponible</p>
+                )}
+            </div>
+            <div className="mt-4 text-sm text-gray-400">
+                <p><strong>DNI:</strong> {cliente.dni}</p>
+                <p><strong>Email:</strong> {cliente.email}</p>
+                <p><strong>Celular:</strong> {cliente.celular}</p>
+            </div>
+        </motion.div>
+    </motion.div>
+);
+
+// Components auxiliares
 const TabButton = ({
     active,
     onClick,
@@ -239,7 +598,7 @@ const TabButton = ({
         <button
             onClick={onClick}
             className={cn(
-                "px-4 py-2 font-medium transition-colors relative",
+                "px-4 py-2 font-medium transition-colors relative whitespace-nowrap",
                 active
                     ? "text-white"
                     : "text-gray-400 hover:text-gray-300"
@@ -263,7 +622,7 @@ const StatCard = ({
     color,
 }: {
     title: string;
-    value: number;
+    value: number | string;
     icon: string;
     color: string;
 }) => {
