@@ -38,8 +38,8 @@ interface Ticket {
     sorteo_nombre: string;
 }
 
-//const API_URL = "https://premios-back-b916cb780512.herokuapp.com/api";
-const API_URL = "http://localhost:3000/api";
+const API_URL = "https://premios-back-b916cb780512.herokuapp.com/api";
+
 export const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState<"overview" | "participants" | "assign" | "tickets">("overview");
     const [clientes, setClientes] = useState<Cliente[]>([]);
