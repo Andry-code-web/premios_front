@@ -38,14 +38,26 @@ interface Ticket {
     sorteo_nombre: string;
 }
 
+interface Premio {
+    id: number;
+    nombre: string;
+    imagen_1: string;
+    created_at: string;
+    monto?: number; // opcional, evita errores si no existe
+    fecha?: string; // opcional
+}
+
 const API_URL = "https://premios-back-b916cb780512.herokuapp.com/api";
 
 export const AdminDashboard = () => {
-    const [activeTab, setActiveTab] = useState<"overview" | "participants" | "assign" | "tickets">("overview");
+    const [activeTab, setActiveTab] = useState<"overview" | "participants" | "assign" | "premios" | "tickets">("overview");
     const [clientes, setClientes] = useState<Cliente[]>([]);
     const [sorteos, setSorteos] = useState<Sorteo[]>([]);
     const [tickets, setTickets] = useState<Ticket[]>([]);
+    const [premios, setPremios] = useState<Premio[]>([]);
     const [loading, setLoading] = useState(false);
+    const [creatingPremio, setCreatingPremio] = useState(false);
+    const [premioMessage, setPremioMessage] = useState<string | null>(null);
     const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
     const [showVoucher, setShowVoucher] = useState(false);
 
@@ -54,7 +66,18 @@ export const AdminDashboard = () => {
         loadClientes();
         loadSorteos();
         loadTickets();
+        loadPremios();
     }, []);
+
+    const loadPremios = async () => {
+        try {
+            const response = await fetch(`${API_URL}/premios`);
+            const data = await response.json();
+            setPremios(data);
+        } catch (error) {
+            console.error("Error al cargar premios:", error);
+        }
+    };
 
     const loadClientes = async () => {
         try {
@@ -93,6 +116,35 @@ export const AdminDashboard = () => {
         totalRevenue: tickets.reduce((sum, t) => sum + parseFloat(t.monto.toString()), 0),
     };
 
+    // Nueva función para crear premio usando multipart/form-data
+    const createPremio = async (formData: FormData) => {
+        setCreatingPremio(true);
+        setPremioMessage(null);
+        try {
+            const res = await fetch(`${API_URL}/premios`, {
+                method: "POST",
+                // NO setear Content-Type; el navegador lo añade por FormData
+                body: formData,
+            });
+            const json = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                const err = json.error || json.message || res.statusText;
+                setPremioMessage(`❌ ${err}`);
+                throw new Error(err);
+            }
+            setPremioMessage(`✅ Premio creado (id: ${json.id ?? "desconocido"})`);
+            // recargar lista de premios
+            await loadPremios();
+            return json;
+        } catch (err: any) {
+            console.error("Error creando premio:", err);
+            if (!premioMessage) setPremioMessage("❌ Error al crear premio");
+            throw err;
+        } finally {
+            setCreatingPremio(false);
+        }
+    };
+
     return (
         <div className="min-h-screen p-4 md:p-8">
             {/* Header */}
@@ -129,6 +181,14 @@ export const AdminDashboard = () => {
                 >
                     📋 Tickets Asignados
                 </TabButton>
+
+                {/* NUEVA pestaña Premios */}
+                <TabButton
+                    active={activeTab === "premios"}
+                    onClick={() => setActiveTab("premios")}
+                >
+                    🏆 Premios
+                </TabButton>
             </div>
 
             {/* Content */}
@@ -160,6 +220,10 @@ export const AdminDashboard = () => {
 
                 {activeTab === "tickets" && (
                     <TicketsTab tickets={tickets} />
+                )}
+
+                {activeTab === "premios" && (
+                    <PremiosTab premios={premios} onCreatePremio={createPremio} creating={creatingPremio} message={premioMessage} />
                 )}
             </div>
 
@@ -536,6 +600,159 @@ const TicketsTab = ({ tickets }: { tickets: Ticket[] }) => (
         </div>
     </motion.div>
 );
+
+// Reemplazo del componente PremiosTab para incluir formulario de subida
+const PremiosTab = ({
+    premios,
+    onCreatePremio,
+    creating,
+    message
+}: {
+    premios: Premio[];
+    onCreatePremio: (fd: FormData) => Promise<any>;
+    creating?: boolean;
+    message?: string | null;
+}) => {
+    const [nombre, setNombre] = useState("");
+    const [file, setFile] = useState<File | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
+    const [loadingLocal, setLoadingLocal] = useState(false);
+    const [localMsg, setLocalMsg] = useState<string | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (preview) URL.revokeObjectURL(preview);
+        };
+    }, [preview]);
+
+    const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const f = e.target.files?.[0] ?? null;
+        setFile(f);
+        setPreview(f ? URL.createObjectURL(f) : null);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLocalMsg(null);
+
+        if (!nombre) return setLocalMsg("El nombre es obligatorio");
+        if (!file) return setLocalMsg("La imagen es obligatoria");
+
+        const fd = new FormData();
+        fd.append("nombre", nombre);
+        // Ajusta el nombre del campo 'file' si tu backend espera otro (e.g., 'imagen')
+        fd.append("imagen_1", file);
+
+        try {
+            setLoadingLocal(true);
+            await onCreatePremio(fd);
+            setNombre("");
+            setFile(null);
+            setPreview(null);
+            setLocalMsg("✅ Premio creado correctamente");
+        } catch (err) {
+            setLocalMsg("❌ Error al crear premio");
+        } finally {
+            setLoadingLocal(false);
+        }
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700"
+        >
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-white">Premios</h2>
+                <span className="text-gray-400">{premios.length} premios</span>
+            </div>
+
+            {/* Formulario para crear premio */}
+            <form onSubmit={handleSubmit} className="mb-6 space-y-4 max-w-2xl">
+                <div>
+                    <label className="block text-gray-300 mb-2">Nombre del premio</label>
+                    <input
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-red-500 focus:outline-none"
+                        placeholder="Nombre del premio"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-gray-300 mb-2">Imagen</label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFile}
+                        className="w-full text-sm text-gray-300"
+                    />
+                </div>
+
+                {preview && (
+                    <div>
+                        <img src={preview} alt="preview" className="w-32 h-32 object-cover rounded" />
+                    </div>
+                )}
+
+                {(localMsg || message) && (
+                    <div className={cn(
+                        "p-3 rounded",
+                        (localMsg || message || "").includes("✅") ? "bg-green-500/10 text-green-300" : "bg-red-500/10 text-red-300"
+                    )}>
+                        {localMsg || message}
+                    </div>
+                )}
+
+                <div className="flex gap-3">
+                    <button
+                        type="submit"
+                        disabled={loadingLocal || creating}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                    >
+                        {loadingLocal || creating ? "Subiendo..." : "Crear Premio"}
+                    </button>
+                </div>
+            </form>
+
+            {/* Tabla de premios (contenido existente adaptado a campos opcionales) */}
+            <div className="overflow-x-auto">
+                <table className="w-full">
+                    <thead>
+                        <tr className="border-b border-gray-700">
+                            <th className="text-left py-3 px-4 text-gray-400 font-medium">Nombre</th>
+                            <th className="text-left py-3 px-4 text-gray-400 font-medium">Imagen</th>
+                            <th className="text-left py-3 px-4 text-gray-400 font-medium">Monto</th>
+                            <th className="text-left py-3 px-4 text-gray-400 font-medium">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {premios.map((p) => (
+                            <tr key={p.id} className="border-b border-gray-700/50 hover:bg-gray-700/20">
+                                <td className="py-3 px-4 text-white font-mono text-sm">{p.nombre}</td>
+                                <td className="py-3 px-4 text-white">
+                                    <img
+                                        src={`data:image/jpeg;base64,${p.imagen_1}`}
+                                        alt="Premio"
+                                        className="w-16 h-16 object-cover rounded"
+                                    />
+                                </td>
+                                <td className="py-3 px-4 text-green-400">
+                                    {typeof p.monto !== "undefined" ? `S/ ${parseFloat(p.monto.toString()).toFixed(2)}` : "—"}
+                                </td>
+                                <td className="py-3 px-4 text-gray-400 text-sm">
+                                    {p.created_at ? new Date(p.created_at).toLocaleString() : (p.fecha ? new Date(p.fecha).toLocaleString() : "—")}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </motion.div>
+    );
+};
 
 // Modal Voucher
 const VoucherModal = ({ cliente, onClose }: { cliente: Cliente; onClose: () => void }) => (
