@@ -353,8 +353,15 @@ const ParticipantsTab = ({
                                     onClick={() => onViewVoucher(c)}
                                     className="text-blue-400 hover:text-blue-300 mr-3"
                                 >
-                                    Ver Voucher
+                                    <i className="ph ph-eye text-xl"></i>
                                 </button>
+
+                                {/* boton para mensaje de whatsapp */}
+                                <a href={`https://wa.me/${c.celular}`} target="_blank" rel="noopener noreferrer">
+                                    <button className="text-green-400 hover:text-blue-300 mr-3">
+                                        <i className="ph ph-whatsapp-logo text-xl"></i>
+                                    </button>
+                                </a>
                             </td>
                         </tr>
                     ))}
@@ -724,7 +731,6 @@ const PremiosTab = ({
                         <tr className="border-b border-gray-700">
                             <th className="text-left py-3 px-4 text-gray-400 font-medium">Nombre</th>
                             <th className="text-left py-3 px-4 text-gray-400 font-medium">Imagen</th>
-                            <th className="text-left py-3 px-4 text-gray-400 font-medium">Monto</th>
                             <th className="text-left py-3 px-4 text-gray-400 font-medium">Fecha</th>
                         </tr>
                     </thead>
@@ -738,9 +744,6 @@ const PremiosTab = ({
                                         alt="Premio"
                                         className="w-16 h-16 object-cover rounded"
                                     />
-                                </td>
-                                <td className="py-3 px-4 text-green-400">
-                                    {typeof p.monto !== "undefined" ? `S/ ${parseFloat(p.monto.toString()).toFixed(2)}` : "—"}
                                 </td>
                                 <td className="py-3 px-4 text-gray-400 text-sm">
                                     {p.created_at ? new Date(p.created_at).toLocaleString() : (p.fecha ? new Date(p.fecha).toLocaleString() : "—")}
