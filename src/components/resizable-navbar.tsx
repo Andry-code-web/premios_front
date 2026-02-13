@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import {
   Navbar,
-  NavBody,
   NavItems,
   MobileNav,
   MobileNavHeader,
@@ -27,17 +26,16 @@ export function NavbarDemo() {
 
   return (
     <Navbar>
-      <NavBody>
-        <NavTitle className="text-2xl md:text-xl lg:text-2xl font-bold text-center relative z-2 font-sans">
-          <ColourfulText text="Premios Cleosaki" />
-        </NavTitle>
-        <NavItems items={navItems} />
-        <div className="ml-auto flex items-center gap-2">
-          <NavbarButton href="/buy-tickets" variant="gradient">
-            Comprar Tickets
-          </NavbarButton>
-        </div>
-      </NavBody>
+      {/* <NavTitle className="text-2xl md:text-xl lg:text-2xl font-bold text-center relative z-2 font-sans">
+        <ColourfulText text="Premios Cleosaki" />
+      </NavTitle> */}
+      <NavbarLogo />
+      <NavItems items={navItems} />
+      <div className="ml-auto flex items-center gap-2">
+        <NavbarButton href="/buy-tickets" variant="gradient">
+          Comprar Tickets
+        </NavbarButton>
+      </div>
       <MobileNav>
         <MobileNavHeader>
           <NavTitle className="text-2xl md:text-xl lg:text-2xl font-bold text-center relative z-2 font-sans">

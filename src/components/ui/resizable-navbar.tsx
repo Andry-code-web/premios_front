@@ -29,12 +29,6 @@ interface NavbarProps {
   className?: string;
 }
 
-interface NavBodyProps {
-  children: React.ReactNode;
-  className?: string;
-  visible?: boolean;
-}
-
 interface NavItemsProps {
   items: {
     name: string;
@@ -83,47 +77,22 @@ export const Navbar = ({ children, className }: NavbarProps) => {
       <motion.div
         ref={ref}
         // IMPORTANT: Change this to class of `fixed` if you want the navbar to be fixed
-        className={cn("sticky inset-x-0 top-24 z-40 w-full", className)}
-      >
-        {React.Children.map(children, (child) =>
-          React.isValidElement(child)
-            ? React.cloneElement(
-              child as React.ReactElement<{ visible?: boolean }>,
-              { visible },
-            )
-            : child,
+        className={cn(
+          "sticky inset-x-0 top-12 z-[60] mx-auto w-full max-w-7xl min-w-0 hidden lg:flex flex-row items-center justify-between self-start rounded-full px-2 sm:px-3 md:px-4 py-2",
+          "bg-white/50 dark:bg-neutral-950/80 backdrop-blur-[10px]",
+          "shadow-[0_0_24px_rgba(34,42,53,0.06),0_1px_1px_rgba(0,0,0,0.05),0_0_0_1px_rgba(34,42,53,0.04),0_0_4px_rgba(34,42,53,0.08),0_16px_68px_rgba(47,48,55,0.05),0_1px_0_rgba(255,255,255,0.1)_inset]",
+          className
         )}
+        style={{
+          width: "clamp(320px, 70%, 1200px)",
+        }}
+      >
+        {children}
       </motion.div>
     </NavbarContext.Provider>
   );
 };
 
-export const NavBody = ({ children, className, visible }: NavBodyProps) => {
-  return (
-    <motion.div
-      animate={{
-        backdropFilter: visible ? "blur(10px)" : "none",
-        boxShadow: visible
-          ? "0 0 24px rgba(34, 42, 53, 0.06), 0 1px 1px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(34, 42, 53, 0.04), 0 0 4px rgba(34, 42, 53, 0.08), 0 16px 68px rgba(47, 48, 55, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1) inset"
-          : "none",
-        width: visible ? "clamp(320px, 70%, 1200px)" : "100%",
-        y: visible ? 20 : 0,
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 200,
-        damping: 50,
-      }}
-      className={cn(
-        "relative z-[60] mx-auto hidden w-full max-w-7xl min-w-0 flex-row items-center justify-between self-start rounded-full bg-transparent px-2 sm:px-3 md:px-4 py-2 lg:flex dark:bg-transparent",
-        visible && "bg-white/80 dark:bg-neutral-950/80",
-        className,
-      )}
-    >
-      {children}
-    </motion.div>
-  );
-};
 
 export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
   const { visible } = useNavbarContext();
@@ -144,7 +113,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
           onClick={onItemClick}
           className={cn(
             "relative px-2 sm:px-3 md:px-4 py-2 transition-colors duration-200 whitespace-nowrap",
-            visible ? "text-neutral-600 dark:text-neutral-300" : "text-white"
+            visible ? "text-black dark:text-neutral-300" : "text-black"
           )}
           key={`link-${idx}`}
           href={item.link}
@@ -275,13 +244,13 @@ export const NavbarLogo = () => {
       className="relative z-20 mr-2 sm:mr-4 flex items-center space-x-1 sm:space-x-2 px-2 py-1 text-xs sm:text-sm font-normal text-black"
     >
       <img
-        src="https://assets.aceternity.com/logo-dark.png"
+        src="../../src/assets/logo_premios.png"
         alt="logo"
         width={24}
         height={24}
-        className="w-5 h-5 sm:w-7 sm:h-7"
+        className="w-36 h-12 sm:w-36 sm:h-12"
       />
-      <span className="font-medium text-black dark:text-white text-xs sm:text-sm">Sorteos Cami</span>
+      {/* <span className="font-medium text-black dark:text-white text-xs sm:text-sm">Sorteos Cami</span> */}
     </a>
   );
 };

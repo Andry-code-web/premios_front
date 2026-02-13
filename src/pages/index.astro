@@ -7,6 +7,8 @@ import { WavyBackground } from "@/components/ui/wavy-background";
 import { CardHoverEffectDemo } from "@/components/card-hover-effectDemo";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { LayoutGridDemo } from "@/components/layout-gridDemo";
+import { GoldenParticles } from "@/components/GoldenParticles";
+import { BentoGridDemo } from "@/components/bento-grid-premios";
 
 const words = `Los mejores sorteos y premios estan a tu alcance.`;
 const words2 = `Inscríbete para ser ganador de grandes premios semana a semana, con tan solo S/ 10 al mes. Recibe la Revista REMATES PERU todos los Martes`;
@@ -14,6 +16,7 @@ const words2 = `Inscríbete para ser ganador de grandes premios semana a semana,
 
 <StickyBannerDemo client:load />
 <Layout title="Sorteos CAMI">
+  <GoldenParticles client:load />
   <NavbarDemo client:load />
   <main class="w-full h-full">
     <div class="w-[90%] mx-auto p-8 pt-5 flex justify-center items-center">
@@ -27,16 +30,7 @@ const words2 = `Inscríbete para ser ganador de grandes premios semana a semana,
       </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4" id="premios">
-      <p
-        class="text-xl sm:text-2xl md:text-4xl lg:text-5xl text-white font-bold inter-var text-center uppercase mt-12 md:mt-24"
-      >
-        Premiazos que puedes ganar
-      </p>
-      <CarouselDemo client:load />
-    </div>
-
-    <section class="w-full min-h-[30vh] py-8 md:py-12 lg:h-[50vh] lg:py-0">
+    <div class="w-full min-h-[10vh] py-8 md:py-12 lg:h-[30vh] lg:py-0">
       <WavyBackground client:load>
         <p
           class="text-xl sm:text-2xl md:text-4xl lg:text-7xl text-white font-bold inter-var text-center mb-6 md:mb-10 px-4"
@@ -119,7 +113,17 @@ const words2 = `Inscríbete para ser ganador de grandes premios semana a semana,
           </div>
         </div>
       </WavyBackground>
-    </section>
+    </div>
+
+    <div class="max-w-[90%] mx-auto px-4" id="premios">
+      <p
+        class="text-xl sm:text-2xl md:text-4xl lg:text-5xl text-white font-bold inter-var text-center uppercase mt-12 md:mt-24"
+      >
+        Premiazos que puedes ganar
+      </p>
+      <!-- <CarouselDemo client:load /> -->
+      <BentoGridDemo client:load />
+    </div>
 
     <!-- <HeroParallaxDemo client:load/> -->
 
