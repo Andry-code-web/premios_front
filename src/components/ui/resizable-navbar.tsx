@@ -244,10 +244,10 @@ export const NavbarLogo = () => {
       className="relative z-20 mr-2 sm:mr-4 flex items-center space-x-1 sm:space-x-2 px-2 py-1 text-xs sm:text-sm font-normal text-black"
     >
       <img
-        src="../../src/assets/logo_premios.png"
-        alt="logo"
-        width={24}
-        height={24}
+        src="/Profesor-Cleosaki-positivo.png"
+        alt="Profesor Cleosaki Logo"
+        width={144}
+        height={48}
         className="w-36 h-12 sm:w-36 sm:h-12"
       />
       {/* <span className="font-medium text-black dark:text-white text-xs sm:text-sm">Sorteos Cami</span> */}

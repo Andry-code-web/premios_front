@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { NavbarDemo } from "@/components/resizable-navbar";
 import { StickyBannerDemo } from "@/components/sticky-banner";
+import { Footer } from "@/components/footer";
 ---
 
 <StickyBannerDemo client:load />
@@ -48,6 +49,7 @@ import { StickyBannerDemo } from "@/components/sticky-banner";
       </div>
     </div>
   </section>
+  <Footer />
 
   <script>
     const form = document.getElementById("buscarTickets");

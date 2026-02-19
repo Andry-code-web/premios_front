@@ -6,7 +6,7 @@ export function Footer() {
         <footer className="w-full" style={{ borderRadius: "0.5rem" }}>
             <div className="flex min-h-full w-full items-center justify-center">
                 <div
-                    className="relative w-full overflow-hidden border-t border-neutral-100 bg-black px-8 py-20 dark:border-white/[0.1] dark:bg-neutral-950"
+                    className="relative w-full overflow-hidden border-t border-neutral-100 bg-black/50 px-8 py-20 dark:border-white/[0.1] dark:bg-neutral-950"
                 >
                     <div
                         className="mx-auto flex max-w-7xl flex-col items-start justify-between text-sm text-neutral-500 sm:flex-row md:px-8"
@@ -19,12 +19,12 @@ export function Footer() {
                                 >
                                     <img
                                         alt="logo"
-                                        width="30"
-                                        height="30"
-                                        src="https://assets.aceternity.com/logo-dark.png"
+                                        width="200"
+                                        height="200"
+                                        src="/Profesor-Cleosaki-positivo.png"
                                     />
-                                    <span className="font-medium text-black dark:text-white">
-                                        DevStudio
+                                    <span className="font-medium text-white dark:text-white">
+                                        Premios Cleosaki
                                     </span>
                                 </a>
                             </div>
@@ -37,12 +37,12 @@ export function Footer() {
                         >
                             <div className="flex w-full flex-col justify-center space-y-4">
                                 <p
-                                    className="hover:text-text-neutral-800 font-bold text-neutral-600 transition-colors dark:text-neutral-300"
+                                    className="hover:text-text-neutral-800 font-bold text-white transition-colors dark:text-neutral-300"
                                 >
                                     Paginas
                                 </p>
                                 <ul
-                                    className="hover:text-text-neutral-800 list-none space-y-4 text-neutral-600 transition-colors dark:text-neutral-300"
+                                    className="hover:text-text-neutral-800 list-none space-y-4 text-white transition-colors dark:text-neutral-300"
                                 >
                                     <li className="list-none">
                                         <a
@@ -88,12 +88,12 @@ export function Footer() {
                             </div>
                             <div className="flex flex-col justify-center space-y-4">
                                 <p
-                                    className="hover:text-text-neutral-800 font-bold text-neutral-600 transition-colors dark:text-neutral-300"
+                                    className="hover:text-text-neutral-800 font-bold text-white transition-colors dark:text-neutral-300"
                                 >
                                     Redes sociales
                                 </p>
                                 <ul
-                                    className="hover:text-text-neutral-800 list-none space-y-4 text-neutral-600 transition-colors dark:text-neutral-300"
+                                    className="hover:text-text-neutral-800 list-none space-y-4 text-white transition-colors dark:text-neutral-300"
                                 >
                                     <li className="list-none">
                                         <a
@@ -123,12 +123,12 @@ export function Footer() {
                             </div>
                             <div className="flex flex-col justify-center space-y-4">
                                 <p
-                                    className="hover:text-text-neutral-800 font-bold text-neutral-600 transition-colors dark:text-neutral-300"
+                                    className="hover:text-text-neutral-800 font-bold text-white transition-colors dark:text-neutral-300"
                                 >
                                     Legal
                                 </p>
                                 <ul
-                                    className="hover:text-text-neutral-800 list-none space-y-4 text-neutral-600 transition-colors dark:text-neutral-300"
+                                    className="hover:text-text-neutral-800 list-none space-y-4 text-white transition-colors dark:text-neutral-300"
                                 >
                                     <li className="list-none">
                                         <a
