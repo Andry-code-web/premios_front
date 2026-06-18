@@ -31,7 +31,7 @@ export const SignUpForm = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
-    const res = await fetch("http://localhost:3000/api/clientes", {
+    const res = await fetch("https://premios-back-b916cb780512.herokuapp.com/api/clientes", {
       method: "POST",
       body: formData,
     });
