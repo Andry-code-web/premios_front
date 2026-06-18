@@ -4,7 +4,7 @@ import { LayoutGrid } from "@/components/ui/layout-grid";
 
 export function LayoutGridDemo() {
   return (
-    <div className="h-[80vh] py-10 w-full">
+    <div className="h-[60vh] md:h-[80vh] py-5 md:py-10 w-full">
       <LayoutGrid cards={cards} />
     </div>
   );
@@ -77,14 +77,14 @@ const cards = [
     content: <SkeletonOne />,
     className: "md:col-span-2",
     thumbnail:
-      "banner_1.png",
+      "moto.png",
   },
   {
     id: 2,
     content: <SkeletonTwo />,
     className: "col-span-1",
     thumbnail:
-      "sorteotiktok1.png",
+      "banner_lav.png",
   },
   {
     id: 3,
@@ -98,6 +98,6 @@ const cards = [
     content: <SkeletonFour />,
     className: "md:col-span-2",
     thumbnail:
-      "banner2.png",
+      "banner_cosina.png",
   },
 ];

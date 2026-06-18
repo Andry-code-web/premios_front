@@ -47,7 +47,7 @@ interface Premio {
     fecha?: string; // opcional
 }
 
-const API_URL = "https://premios-back-b916cb780512.herokuapp.com/api";
+const API_URL = "http://localhost:3000/api";
 
 export const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState<"overview" | "participants" | "assign" | "premios" | "tickets">("overview");
@@ -115,6 +115,7 @@ export const AdminDashboard = () => {
         activeDraws: sorteos.filter(s => s.estado === 'activo').length,
         totalRevenue: tickets.reduce((sum, t) => sum + parseFloat(t.monto.toString()), 0),
     };
+
 
     // Nueva función para crear premio usando multipart/form-data
     const createPremio = async (formData: FormData) => {
@@ -210,7 +211,6 @@ export const AdminDashboard = () => {
                 {activeTab === "assign" && (
                     <AssignTicketsTab
                         clientes={clientes}
-                        sorteos={sorteos}
                         onTicketAssigned={() => {
                             loadTickets();
                             setActiveTab("tickets");
@@ -374,60 +374,70 @@ const ParticipantsTab = ({
 // Tab Asignar Tickets
 const AssignTicketsTab = ({
     clientes,
-    sorteos,
     onTicketAssigned
 }: {
     clientes: Cliente[];
-    sorteos: Sorteo[];
     onTicketAssigned: () => void;
 }) => {
     const [selectedClienteId, setSelectedClienteId] = useState("");
-    const [selectedSorteoId, setSelectedSorteoId] = useState("");
+    const [cantidad, setCantidad] = useState("1");
     const [monto, setMonto] = useState("");
     const [metodoPago, setMetodoPago] = useState<"yape" | "plin" | "otros">("yape");
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
-    const [codigoTicket, setCodigoTicket] = useState("");
+    const [codigosTicket, setCodigosTicket] = useState<string[]>([]);
+    const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+    const handleCopy = (codigo: string, index: number) => {
+        navigator.clipboard.writeText(codigo);
+        setCopiedIndex(index);
+        setTimeout(() => setCopiedIndex(null), 2000);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setMessage("");
-        setCodigoTicket("");
+        setCodigosTicket([]);
+
+        const cantidadNum = parseInt(cantidad);
 
         try {
-            const response = await fetch(`${API_URL}/tickets`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    cliente_id: parseInt(selectedClienteId),
-                    sorteo_id: parseInt(selectedSorteoId),
-                    monto: parseFloat(monto),
-                    metodo_pago: metodoPago,
-                }),
-            });
+            // Disparar N peticiones en paralelo
+            const requests = Array.from({ length: cantidadNum }, () =>
+                fetch(`${API_URL}/tickets`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        cliente_id: parseInt(selectedClienteId),
+                        cantidad_tickets: parseInt(cantidad),
+                        monto: parseFloat(monto),
+                        metodo_pago: metodoPago,
+                    }),
+                }).then((r) => r.json())
+            );
 
-            const data = await response.json();
+            const results = await Promise.all(requests);
+            const errored = results.filter((r) => !r.codigo_ticket);
 
-            if (response.ok) {
-                setCodigoTicket(data.codigo_ticket);
-                setMessage(`✅ ${data.message}`);
+            if (errored.length > 0) {
+                setMessage(`❌ Error al asignar ${errored.length} ticket(s). Verifica la consola.`);
+                console.error("Errores:", errored);
+            } else {
+                const codigos = results.map((r) => r.codigo_ticket);
+                setCodigosTicket(codigos);
+                setMessage(
+                    `✅ ${cantidadNum} ticket${cantidadNum > 1 ? "s asignados" : " asignado"} correctamente`
+                );
                 // Reset form
                 setSelectedClienteId("");
-                setSelectedSorteoId("");
+                setCantidad("1");
                 setMonto("");
                 setMetodoPago("yape");
-                // Notify parent
-                setTimeout(() => {
-                    onTicketAssigned();
-                }, 2000);
-            } else {
-                setMessage(`❌ ${data.message}`);
+                setTimeout(() => onTicketAssigned(), 2500);
             }
         } catch (error) {
-            setMessage("❌ Error al asignar ticket");
+            setMessage("❌ Error al asignar tickets");
             console.error(error);
         } finally {
             setLoading(false);
@@ -440,7 +450,11 @@ const AssignTicketsTab = ({
             animate={{ opacity: 1, y: 0 }}
             className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-gray-700 max-w-2xl mx-auto"
         >
-            <h2 className="text-xl font-bold text-white mb-6">Asignar Ticket a Cliente</h2>
+            <h2 className="text-xl font-bold text-white mb-2">Asignar Tickets a Cliente</h2>
+            <p className="text-gray-400 text-sm mb-6">
+                Cada participante que paga tiene oportunidad de ganar cualquier premio.
+                Puedes asignar uno o varios tickets a la vez.
+            </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Seleccionar Cliente */}
@@ -455,33 +469,48 @@ const AssignTicketsTab = ({
                         <option value="">Seleccionar cliente...</option>
                         {clientes.map((c) => (
                             <option key={c.id} value={c.id}>
-                                {c.nombres} {c.apellidos} - DNI: {c.dni}
+                                {c.nombres} {c.apellidos} — DNI: {c.dni}
                             </option>
                         ))}
                     </select>
                 </div>
 
-                {/* Seleccionar Sorteo */}
+                {/* Cantidad de Tickets */}
                 <div>
-                    <label className="block text-gray-300 mb-2">Sorteo</label>
-                    <select
-                        value={selectedSorteoId}
-                        onChange={(e) => setSelectedSorteoId(e.target.value)}
-                        required
-                        className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-red-500 focus:outline-none"
-                    >
-                        <option value="">Seleccionar sorteo...</option>
-                        {sorteos.filter(s => s.estado === 'activo').map((s) => (
-                            <option key={s.id} value={s.id}>
-                                {s.nombre} - {s.estado}
-                            </option>
-                        ))}
-                    </select>
+                    <label className="block text-gray-300 mb-2">🎫 Cantidad de Tickets</label>
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setCantidad((prev) => String(Math.max(1, parseInt(prev) - 1)))}
+                            className="w-10 h-10 flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-xl font-bold border border-gray-600 transition-colors"
+                        >
+                            −
+                        </button>
+                        <input
+                            type="number"
+                            min="1"
+                            max="50"
+                            value={cantidad}
+                            onChange={(e) => setCantidad(e.target.value)}
+                            required
+                            className="w-24 text-center px-4 py-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-red-500 focus:outline-none text-xl font-bold"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setCantidad((prev) => String(Math.min(50, parseInt(prev) + 1)))}
+                            className="w-10 h-10 flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-xl font-bold border border-gray-600 transition-colors"
+                        >
+                            +
+                        </button>
+                        <span className="text-gray-400 text-sm">
+                            {parseInt(cantidad) > 1 ? `${cantidad} tickets` : "1 ticket"}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Monto */}
                 <div>
-                    <label className="block text-gray-300 mb-2">Monto (S/)</label>
+                    <label className="block text-gray-300 mb-2">Monto (S/) por ticket</label>
                     <input
                         type="number"
                         step="0.01"
@@ -513,28 +542,35 @@ const AssignTicketsTab = ({
                     </div>
                 </div>
 
-                {/* Código de Ticket Generado */}
-                {codigoTicket && (
-                    <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                        <label className="block text-green-300 mb-2 font-semibold">✅ Código de Ticket Generado</label>
-                        <div className="flex items-center gap-3">
-                            <input
-                                type="text"
-                                value={codigoTicket}
-                                readOnly
-                                className="flex-1 px-4 py-3 bg-gray-900 text-green-400 font-mono text-lg rounded-lg border border-green-500/50 focus:outline-none"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    navigator.clipboard.writeText(codigoTicket);
-                                    alert("Código copiado al portapapeles");
-                                }}
-                                className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-                            >
-                                📋 Copiar
-                            </button>
-                        </div>
+                {/* Códigos de Tickets Generados */}
+                {codigosTicket.length > 0 && (
+                    <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 space-y-3">
+                        <label className="block text-green-300 font-semibold">
+                            ✅ {codigosTicket.length} Código{codigosTicket.length > 1 ? "s" : ""} Generado{codigosTicket.length > 1 ? "s" : ""}
+                        </label>
+                        {codigosTicket.map((codigo, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                                <span className="text-gray-400 text-sm w-6">#{i + 1}</span>
+                                <input
+                                    type="text"
+                                    value={codigo}
+                                    readOnly
+                                    className="flex-1 px-3 py-2 bg-gray-900 text-green-400 font-mono rounded-lg border border-green-500/50 focus:outline-none text-sm"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => handleCopy(codigo, i)}
+                                    className={cn(
+                                        "px-3 py-2 rounded-lg text-sm transition-colors",
+                                        copiedIndex === i
+                                            ? "bg-green-700 text-white"
+                                            : "bg-green-600 hover:bg-green-700 text-white"
+                                    )}
+                                >
+                                    {copiedIndex === i ? "✓ Copiado" : "📋"}
+                                </button>
+                            </div>
+                        ))}
                     </div>
                 )}
 
@@ -554,7 +590,9 @@ const AssignTicketsTab = ({
                     disabled={loading}
                     className="w-full px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg font-bold transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {loading ? "Asignando..." : "Asignar Ticket"}
+                    {loading
+                        ? "Asignando..."
+                        : `Asignar ${parseInt(cantidad) > 1 ? `${cantidad} Tickets` : "Ticket"}`}
                 </button>
             </form>
         </motion.div>

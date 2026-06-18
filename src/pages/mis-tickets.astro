@@ -76,7 +76,7 @@ import { Footer } from "@/components/footer";
           `;
 
         const response = await fetch(
-          `https://premios-back-b916cb780512.herokuapp.com/api/tickets/${dni}`,
+          `http://localhost:3000/api/tickets/${dni}`,
         );
         if (!response.ok)
           throw new Error("No se encontraron tickets asociados a este DNI");

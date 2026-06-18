@@ -20,13 +20,13 @@ const words2 = `Inscríbete para ser ganador de grandes premios semana a semana,
 <Layout title="Sorteos CAMI">
   <NavbarDemo client:load />
   <main class="w-full h-full">
-    <div class="w-[90%] mx-auto p-8 pt-5 flex justify-center items-center">
-      <div class="w-1/4">
+    <div class="w-full md:w-[90%] mx-auto p-4 md:p-8 pt-5 flex flex-col lg:flex-row justify-center items-center gap-8 lg:gap-12">
+      <div class="w-full lg:w-1/3 px-4 lg:px-0 text-center lg:text-left">
         <TextGenerateEffect client:load words={words} variant="title" />
 
         <TextGenerateEffect client:load words={words2} variant="subtitle" />
       </div>
-      <div class="w-3/5">
+      <div class="w-full lg:w-3/5">
         <LayoutGridDemo />
       </div>
     </div>
